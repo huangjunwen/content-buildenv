@@ -9,7 +9,7 @@ on:
 # and a name for the Docker image that this workflow builds.
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: huangjunwen/content-builder
+  IMAGE_NAME: huangjunwen/content-buildenv
 
 jobs:
   build-and-push-image:
