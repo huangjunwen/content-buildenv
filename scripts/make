@@ -4,6 +4,7 @@ BASE_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 if test -f .use-buildenv-cont; then
   # run in container
+  echo ">>> found .use-buildenv-cont, will run in container >>>"
   exec enter-buildenv make "$@"
 else
   # use the original one
