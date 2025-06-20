@@ -1,0 +1,11 @@
+#!/bin/bash
+
+BASE_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+if test -f .use-buildenv-cont; then
+  # run in container
+  exec enter-buildenv make "$@"
+else
+  # use the original one
+  exec env PATH=$BASE_PATH make "$@"
+fi
