@@ -10,7 +10,9 @@ if [[ $(podman ps --filter name=$CONT_NAME --format '{{.Names}}' | wc -l) -eq 0 
   podman rm -f -t 1 -i $CONT_NAME
   echo "Starting $CONT_NAME..."
   # https://stackoverflow.com/a/36872226
+  # Line DISPLAY ... to enable GUI, you may need to run `xhost` to grant access?
   podman run -td --rm --name $CONT_NAME \
+      -e DISPLAY -v $XAUTHORITY:$XAUTHORITY:ro -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
       -p 127.0.0.1:8000-9000:8000-9000 \
       -v $CUR_DIR:$CONTENT_DIR \
       ghcr.io/huangjunwen/content-buildenv sleep infinity
