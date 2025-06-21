@@ -17,9 +17,9 @@ if [[ $(podman ps --filter name=$CONT_NAME --format '{{.Names}}' | wc -l) -eq 0 
   echo "Starting $CONT_NAME..."
   # https://stackoverflow.com/a/36872226
   podman run -td --rm --name $CONT_NAME \
+      -v $HOMEDIR:$HOMEDIR \
       -e DISPLAY -v $XAUTHORITY:$XAUTHORITY:ro -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
       -p 127.0.0.1:8000-9000:8000-9000 \
-      -v $HOMEDIR:$HOMEDIR \
       -w $HOMEDIR \
       ghcr.io/huangjunwen/content-buildenv sleep infinity
 fi

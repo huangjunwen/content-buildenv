@@ -20,4 +20,5 @@ RUN mkdir -p /usr/share/fonts/custom/JuliaMono && cd /usr/share/fonts/custom/Jul
     curl -L --output NotoSansCJK.zip https://github.com/notofonts/noto-cjk/releases/download/Sans2.004/02_NotoSansCJK-TTF-VF.zip && \
     unzip NotoSansCJK.zip && \
     rm NotoSansCJK.zip && \
-    fc-cache -fv
+    chown -R root:root /usr/share/fonts/custom && \
+    fc-cache -frv
