@@ -1,25 +1,33 @@
 #!/bin/bash
 
 # SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-CUR_DIR=$(pwd)
-CONTENT_DIR=/root/content
 CONT_NAME=content-buildenv
 
 if [[ $(podman ps --filter name=$CONT_NAME --format '{{.Names}}' | wc -l) -eq 0 ]]; then
+
   echo "Try to remove $CONT_NAME..."
   podman rm -f -t 1 -i $CONT_NAME
+
+  # Grant xhost access
+  xhost +"local:podman@"
+
+  # https://superuser.com/a/484330/135199
+  HOMEDIR=$(getent passwd "$USER" | cut -d: -f6)
+
   echo "Starting $CONT_NAME..."
   # https://stackoverflow.com/a/36872226
-  # Line DISPLAY ... to enable GUI, you may need to run `xhost` to grant access?
   podman run -td --rm --name $CONT_NAME \
       -e DISPLAY -v $XAUTHORITY:$XAUTHORITY:ro -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
       -p 127.0.0.1:8000-9000:8000-9000 \
-      -v $CUR_DIR:$CONTENT_DIR \
+      -v $HOMEDIR:$HOMEDIR \
+      -w $HOMEDIR \
       ghcr.io/huangjunwen/content-buildenv sleep infinity
 fi
 
+# XXX: CUR_DIR should exists on both host and container (e.g. inside home directory)
+CUR_DIR=$(pwd)
 CMD="${@:-bash}"
-echo "Will run <<$CMD>> in container <<$CONTENT_DIR>>"
-exec podman exec -it $CONT_NAME $CMD
+echo "Will run <<$CMD>> in container <<$CUR_DIR>>"
+exec podman exec -w $CUR_DIR -it $CONT_NAME $CMD
 
 

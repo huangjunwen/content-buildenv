@@ -21,5 +21,3 @@ RUN mkdir -p /usr/share/fonts/custom/JuliaMono && cd /usr/share/fonts/custom/Jul
     unzip NotoSansCJK.zip && \
     rm NotoSansCJK.zip && \
     fc-cache -fv
-    
-WORKDIR /root/content
