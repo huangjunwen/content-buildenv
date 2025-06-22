@@ -1,7 +1,7 @@
 # content-buildenv
 
-Build env for my content.
+Build environment for my content.
 
 ## Usage
 
-Add `scripts` directory to your `PATH`
+Add `bin` directory to your `PATH`
