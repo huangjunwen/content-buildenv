@@ -13,22 +13,23 @@ if [[ $(podman ps --filter name=$CONT_NAME --format '{{.Names}}' | wc -l) -eq 0 
 
   # https://superuser.com/a/484330/135199
   HOMEDIR=$(getent passwd "$USER" | cut -d: -f6)
+  if [[ "$HOMEDIR" != "/root" ]]; then
+    HOME_MOUNT="-v $HOMEDIR:$HOMEDIR"
+  else
+    HOME_MOUNT="-v $CONT_NAME-root:/root"
+  fi
 
   # use `podman container diff content-buildenv` to check which directories have been changed
   CACHE_MOUNT="-v $CONT_NAME-luatex-cache:/var/lib/texmf/luatex-cache"
-  if [[ "$HOMEDIR" != "/root" ]]; then
-    # also mount root if im not root
-    CACHE_MOUNT="$CACHE_MOUNT -v $CONT_NAME-root:/root"
-  fi
 
   echo "Starting $CONT_NAME..."
   # https://stackoverflow.com/a/36872226
   podman run -td --rm --name $CONT_NAME \
-      -v $HOMEDIR:$HOMEDIR $CACHE_MOUNT \
-      -e DISPLAY -v $XAUTHORITY:$XAUTHORITY:ro -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-      -p 127.0.0.1:8000-9000:8000-9000 \
-      -w $HOMEDIR \
-      ghcr.io/huangjunwen/content-buildenv sleep infinity
+    $HOME_MOUNT $CACHE_MOUNT \
+    -e DISPLAY -v $XAUTHORITY:$XAUTHORITY:ro -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+    -p 127.0.0.1:8000-9000:8000-9000 \
+    -w $HOMEDIR \
+    ghcr.io/huangjunwen/content-buildenv sleep infinity
 fi
 
 # XXX: CUR_DIR should exists on both host and container (e.g. inside home directory)
@@ -36,5 +37,3 @@ CUR_DIR=$(pwd)
 CMD="${@:-bash}"
 echo "Will run <<$CMD>> in container <<$CUR_DIR>>"
 exec podman exec -w $CUR_DIR -it $CONT_NAME $CMD
-
-
