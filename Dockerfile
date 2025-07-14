@@ -1,4 +1,5 @@
-FROM ubuntu:24.04
+# Fix the release date of ubuntu 24.04
+FROM ubuntu:noble-20250529
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl unzip make inotify-tools python3 nodejs npm ipe inkscape graphviz texlive-full && \
