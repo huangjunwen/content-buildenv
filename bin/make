@@ -1,12 +1,12 @@
 #!/bin/bash
 
-BASE_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
 if test -f .use-buildenv-cont; then
   # run in container
   echo ">>> found .use-buildenv-cont, will run in container >>>"
-  exec enter-buildenv make "$@"
+  SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+  exec $SCRIPT_DIR/enter-buildenv make "$@"
 else
   # use the original one
+  BASE_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   exec env PATH=$BASE_PATH make "$@"
 fi

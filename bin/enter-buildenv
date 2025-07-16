@@ -8,28 +8,28 @@ if [[ $(podman ps --filter name=$CONT_NAME --format '{{.Names}}' | wc -l) -eq 0 
   echo "Try to remove $CONT_NAME..."
   podman rm -f -t 1 -i $CONT_NAME
 
-  # Grant xhost access
-  xhost +"local:podman@"
-
   # https://superuser.com/a/484330/135199
   HOMEDIR=$(getent passwd "$USER" | cut -d: -f6)
-  if [[ "$HOMEDIR" != "/root" ]]; then
-    HOME_MOUNT="-v $HOMEDIR:$HOMEDIR"
-  else
-    HOME_MOUNT="-v $CONT_NAME-root:/root"
-  fi
+  HOME_FLAGS="-v $HOMEDIR:$HOMEDIR"
 
   # use `podman container diff content-buildenv` to check which directories have been changed
-  CACHE_MOUNT="-v $CONT_NAME-luatex-cache:/var/lib/texmf/luatex-cache"
+  CACHE_FLAGS="-v $CONT_NAME-luatex-cache:/var/lib/texmf/luatex-cache"
 
-  echo "Starting $CONT_NAME..."
+  # Grant xhost access
+  xhost +"local:podman@"
+  X_FLAGS="-e DISPLAY -v $XAUTHORITY:$XAUTHORITY:ro -v /tmp/.X11-unix:/tmp/.X11-unix:ro"
+
   # https://stackoverflow.com/a/36872226
+  echo "Try to run $CONT_NAME..."
+  set -x
   podman run -td --rm --name $CONT_NAME \
-    $HOME_MOUNT $CACHE_MOUNT \
-    -e DISPLAY -v $XAUTHORITY:$XAUTHORITY:ro -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+    $HOME_FLAGS \
+    $CACHE_FLAGS \
+    $X_FLAGS \
     -p 127.0.0.1:8000-9000:8000-9000 \
     -w $HOMEDIR \
     ghcr.io/huangjunwen/content-buildenv sleep infinity
+  set +x
 fi
 
 # XXX: CUR_DIR should exists on both host and container (e.g. inside home directory)
